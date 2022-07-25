@@ -41,13 +41,13 @@ class Field:
         print('===========================')
         print('=', self.name)
         print('===========================')
-        print('x\y 0   1   2   3   4   5')
+        print('x\y 1   2   3   4   5   6')
         line = ""
         for i in range(self.N):
             line = ' | '.join(map(str,self.cells[i]))
             line = line.replace('1', '■')
             line = line.replace('0', '.')
-            print(i, '|', line, '|')
+            print(i+1, '|', line, '|')
         print('=========================')
 
 
@@ -112,19 +112,31 @@ class Field:
         ship = Ship(ship_coords)
         return ship
 
+    #Generage all ships
+    #3 cells - 1
+    #2 cells - 2
+    #1 cell - 4
     def GenerateShipsOnBoard(self):
-        #reset field and ships
-        self.cells = [[0 for _ in range(self.N)] for _ in range(self.N)]
-        self.ships = []
+        def GenAttempt() -> bool:
+            count = 0
+            ships_cfg = [3, 2, 2, 1, 1, 1, 1]
+            #reset field and ships
+            self.cells = [[0 for _ in range(self.N)] for _ in range(self.N)]
+            self.ships = []
+            for n in ships_cfg:
+                while not self.AddShip(self.ShipFactory(n)):
+                    count += 1
+                    if count > 1000:
+                        return False
+            return True
+        
+        count_attempts = 0
+        while not GenAttempt():
+            count_attempts += 1
+            if count_attempts > 1000:
+                raise Exception("Не получилось расставить корабли")
 
-        count = 0
-        ships_cfg = [3, 2, 2, 1, 1, 1, 1]
-        for n in ships_cfg:
-            while not self.AddShip(self.ShipFactory(n)):
-                count += 1
-                if count > 1000:
-                    return False
-        return True
+        
             
 
 
@@ -133,14 +145,11 @@ class Field:
 
 
 field_user = Field("Игрок 1 - людь")
-
-while not field_user.GenerateShipsOnBoard():
-    pass
+field_user.GenerateShipsOnBoard()
 
 field_ai = Field("Игрок 2 - компьютер")
+field_ai.GenerateShipsOnBoard()
 
-while not field_ai.GenerateShipsOnBoard():
-    pass
 
 #field_user.print()
 field_user.print_nice()
