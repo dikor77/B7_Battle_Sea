@@ -1,4 +1,5 @@
 import os
+import time
 from random import randrange
 
 
@@ -86,16 +87,17 @@ class Field:
         print('=', self.name)
         print('===========================')
         print('x\\y 0   1   2   3   4   5')
+        print('===========================')
         line = ""
         for i in range(self.N):
             line = ' | '.join(map(str, self.cells[i]))
             line = line.replace('0', '.')
-            line = line.replace('1', '■')
+            line = line.replace('1', '.' if self.type == 'auto' else '■') 
             line = line.replace('2', 'o')
             line = line.replace('3', 'x')
             line = line.replace('4', 'X')
             print(i, '|', line, '|')
-        print('=========================')
+        print('===========================')
 
 
     #True если в эту ячейку можно стрелять (0, 1)
@@ -230,6 +232,7 @@ class Field:
 #запросить координаты в формате 
 def user_input(f: Field, type):
     if type == 'auto':
+        time.sleep(2)
         cells_count = randrange(0, f.cells_available_for_shut())
         for x in range(f.N):
             for y in range(f.N):
@@ -282,9 +285,10 @@ while True:
     #пишу текущий статус
     msg = f"Номер хода: {step_count}\n"
     msg += "Состояние кораблей: \n"
+    msg += f"     У {user_shutter.name} осталось {user_shutter.ships_alive()} кораблей\n"
+    msg += f"     У {user_target.name} осталось {user_target.ships_alive()} кораблей\n"
     msg += f"Выстрел делает {user_shutter.name}"
     print(msg)
-    #input("Нажми Enter для продолжения")
 
     #check user_target has cells
     if user_target.cells_available_for_shut() == 0:
@@ -294,8 +298,8 @@ while True:
     #user_shutter shut to user_target
     x, y = user_input(user_target, user_shutter.type)
     print(f"Выстрел в ячейку x={x} y={y}")
-    val = user_target.Shut(x, y)
-    print(f"{user_shutter.name} выстрел результат: {status[val]}")
+    res = user_target.Shut(x, y)
+    print(f"{user_shutter.name} выстрел результат: {status[res]}")
 
     #check user_target has ships
     if user_target.ships_alive() == 0:
@@ -309,9 +313,13 @@ while True:
     msg  = "=========================================\n"
     msg += "==             Конец хода              ==\n"
     msg += "=========================================\n"
+    print(msg)
+
+    input("Нажми Enter для продолжения")
 
     step_count += 1
-    user_shutter, user_target = user_target, user_shutter
+    if res == 0:
+        user_shutter, user_target = user_target, user_shutter
 
 #рисую поля
 user_shutter.print_nice()
@@ -320,5 +328,6 @@ user_target.print_nice()
 msg  = "=========================================\n"
 msg += "==             Конец игры              ==\n"
 msg += "=========================================\n"
+print(msg)
 
 
