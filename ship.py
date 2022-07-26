@@ -14,7 +14,7 @@ class Ship:
     
     @property
     def status(self):
-        """0 - целый, 1 - ранен, 2 - умер"""
+        """0 - целый, 1 - ранен, 2 - убит"""
         if self.hit_count <= 0:
             return 0
         elif self.hit_count >= self.size:
