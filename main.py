@@ -229,6 +229,18 @@ def user_input(f: Field):
             print("Ваш ввод не распознан, попробуй еще")
 
 
+def user_input_auto(f: Field):
+    user_input = []
+    cells_count = randrange(0, f.cells_available_for_shut())
+    for x in range(f.N):
+        for y in range(f.N):
+            if cells_count > 0:
+                if f.is_cell_availavle_for_shut(x, y):
+                    cells_count -= 1
+            else:
+                    return (x, y)
+
+
 #Игровая логика
 #Генерация поля Игрок 1
 field_user1 = Field("Игрок 1 - людь")
