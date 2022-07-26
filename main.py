@@ -1,7 +1,10 @@
-from email import message
-from itertools import count
+import os
 from random import randrange
-from sqlite3.dbapi2 import _SingleParamWindowAggregateClass
+
+
+def clear_console():
+    os.system('cls' if os.name=='nt' else 'clear')
+
 
 
 class Ship:
@@ -13,14 +16,17 @@ class Ship:
     def size(self):
         return len(self.coords)
     
+    #0 - целый
+    #1 - ранен
+    #2 - умер
     @property
     def status(self):
         if self.hit_count <= 0:
-            return "целый"
+            return 0
         elif self.hit_count >= self.size:
-            return "умер"
+            return 2
         else:
-            return "ранен"
+            return 1
 
 
 class Field:
@@ -31,11 +37,12 @@ class Field:
         3 - ход корабель ранен
         4 - ход корабель убит
     """
-    def __init__(self, name) -> None:
+    def __init__(self, name, type = 'auto') -> None:
         self.name: str = name
         self.N: int = 6
         self.cells: list = self.FieldFactory()
         self.ships: list[Ship]  = []
+        self.type = type
 
 
     #find and return ship or None
@@ -50,16 +57,17 @@ class Field:
     def ships_alive(self):
         count = 0
         for ship in self.ships:
-            if ship.status != "умер":
+            if ship.status != 2:  #если статус не умер
                 count += 1
         return count
 
 
     def cells_available_for_shut(self):
         count = 0
-        for cell in self.cells:
-            if cell == 0:
-                count += 1
+        for x in range(self.N):
+            for y in range(self.N):
+                if self.is_cell_availavle_for_shut(x, y):
+                    count += 1
         return count
 
 
@@ -81,8 +89,11 @@ class Field:
         line = ""
         for i in range(self.N):
             line = ' | '.join(map(str, self.cells[i]))
-            line = line.replace('1', '■')
             line = line.replace('0', '.')
+            line = line.replace('1', '■')
+            line = line.replace('2', 'o')
+            line = line.replace('3', 'x')
+            line = line.replace('4', 'X')
             print(i, '|', line, '|')
         print('=========================')
 
@@ -186,79 +197,128 @@ class Field:
     #ищем корабль
     #меняем статус корабля
     #меняем статус ячейки
-    #return status 2, 3, 4 / мимо, ранен, убит
+    #return status 0, 1, 2 / мимо, ранен, убит
     def Shut(self, x, y):
         status = 0
-        if not self.is_cell_availavle_for_shut():
+        if not self.is_cell_availavle_for_shut(x, y):
             raise Exception("Ячейка не доступна для выстрела")
         
         ship = self.find_ship(x, y)
         if ship is None:
-            status = 2 #мимо
+            status = 0 #мимо
             self.cells[x][y] = 2
         else:
             #попал
-            if ship.status == 'умер':
+            if ship.status == 2: #умер
                 raise Exception("Корабль уже был убит")
             
             ship.hit_count += 1
-            if ship.status == 'ранен':
-                status = 3 #мимо
+            if ship.status == 1: #ранен
+                status = 1 #мимо
                 self.cells[x][y] = 3
-            elif ship.status == 'ранен':
-                status = 4 #мимо
+            elif ship.status == 2: #умер
+                status = 2 #умер
                 self.cells[x][y] = 4
+                #надо переписать статус всех ячеек корабля на поле
+                for a, b in ship.coords:
+                    self.cells[a][b] = 4
             else:
                 raise Exception("Неизвесное состояние корабля")
         return status
 
 
 #запросить координаты в формате 
-def user_input(f: Field):
-    user_input = []
-    while True:
-        user_input = list(map(int, list(input("Ваш ход, укажите координаты поля второго игрока, формат (строка колонка): ").split())))
-        if len(user_input) == 2 and all(list(map(lambda x: x in range(f.N), user_input))):
-            x, y = user_input[0], user_input[1]
-            if f.is_cell_availavle_for_shut(x, y):
-                print("Ваш выбор: ", user_input)
-                return user_input
-            else:
-                print("Ячейка уже занята, попробуй еще")
-        else:
-            print("Ваш ввод не распознан, попробуй еще")
-
-
-def user_input_auto(f: Field):
-    user_input = []
-    cells_count = randrange(0, f.cells_available_for_shut())
-    for x in range(f.N):
-        for y in range(f.N):
-            if cells_count > 0:
+def user_input(f: Field, type):
+    if type == 'auto':
+        cells_count = randrange(0, f.cells_available_for_shut())
+        for x in range(f.N):
+            for y in range(f.N):
+                if cells_count > 0:
+                    if f.is_cell_availavle_for_shut(x, y):
+                        cells_count -= 1
+                else:
+                    if f.is_cell_availavle_for_shut(x, y):
+                        return [x, y]
+        raise Exception("Ошибка генерации координат")
+    else:
+        while True:
+            ui = list(map(int, list(input("Ваш ход, укажите координаты поля второго игрока, формат (строка колонка): ").split())))
+            if len(ui) == 2 and all(list(map(lambda x: x in range(f.N), ui))):
+                x, y = ui[0], ui[1]
                 if f.is_cell_availavle_for_shut(x, y):
-                    cells_count -= 1
+                    print("Ваш выбор: ", ui)
+                    return ui
+                else:
+                    print("Ячейка уже занята, попробуй еще")
             else:
-                    return (x, y)
+                print("Ваш ввод не распознан, попробуй еще")
+
+
+status = ["МИМО", "РАНИЛ", "УБИЛ"]
 
 
 #Игровая логика
 #Генерация поля Игрок 1
-field_user1 = Field("Игрок 1 - людь")
-field_user1.GenerateShipsOnBoard()
+user_shutter = Field("Игрок 1 - людь", type='human')
+user_shutter.GenerateShipsOnBoard()
 
 #Генерация поля Игрок 2
-field_user2 = Field("Игрок 2 - компьютер")
-field_user2.GenerateShipsOnBoard()
+user_target = Field("Игрок 2 - компьютер", type='auto')
+user_target.GenerateShipsOnBoard()
+
+step_count = 1
 
 #Игровой цикл пока есть корабли или свободные для выстрела ячейки
+while True:
+    clear_console()
+    msg  = "=========================================\n"
+    msg += "==      Начало хода, состояние полей   ==\n"
+    msg += "=========================================\n"
+    print(msg)
+    #рисую поля
+    user_shutter.print_nice()
+    user_target.print_nice()
 
-count = 1
+    #пишу текущий статус
+    msg = f"Номер хода: {step_count}\n"
+    msg += "Состояние кораблей: \n"
+    msg += f"Выстрел делает {user_shutter.name}"
+    print(msg)
+    #input("Нажми Enter для продолжения")
 
-field_user1.print_nice()
-field_user2.print_nice()
+    #check user_target has cells
+    if user_target.cells_available_for_shut() == 0:
+        print("Некуда ходить, видимо ничья")
+        break
 
-user_input = user_input(field_user1)
-field_user2.Shut(user_input[0], user_input[1])
+    #user_shutter shut to user_target
+    x, y = user_input(user_target, user_shutter.type)
+    print(f"Выстрел в ячейку x={x} y={y}")
+    val = user_target.Shut(x, y)
+    print(f"{user_shutter.name} выстрел результат: {status[val]}")
 
+    #check user_target has ships
+    if user_target.ships_alive() == 0:
+        print(f"Игрок: {user_shutter.name} выиграл")
+        break
+
+    #рисую поля
+    user_shutter.print_nice()
+    user_target.print_nice()
+
+    msg  = "=========================================\n"
+    msg += "==             Конец хода              ==\n"
+    msg += "=========================================\n"
+
+    step_count += 1
+    user_shutter, user_target = user_target, user_shutter
+
+#рисую поля
+user_shutter.print_nice()
+user_target.print_nice()
+
+msg  = "=========================================\n"
+msg += "==             Конец игры              ==\n"
+msg += "=========================================\n"
 
 
