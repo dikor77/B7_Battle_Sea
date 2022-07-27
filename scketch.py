@@ -1,30 +1,21 @@
+from ntpath import join
 from random import randint, choice
 from board import Board
+from game import Game
 
 from dot import Dot
 from ship import Ship
 
-dots = []
-for x in range(3):
-    for y in range(3):
-        dots.append(Dot(x,y))
+g = Game()
 
-print(dots)
-print(choice(dots))
+g.print_board_v()
 
-dots.remove(Dot(0, 0))
+print("=====================")
+print(g.us.board.__str__().split('\n'))
+print(g.ai.board.__str__().split('\n'))
 
-try:
-    dots.remove(Dot(0, 0))
-except ValueError:
-    pass
-
-print(dots)
-
-
-
-
-
+for a, b in zip(g.us.board.__str__().split('\n'), g.ai.board.__str__().split('\n')):
+    print(''.join([a.ljust(30), b.rjust(30)]))
 
 
 

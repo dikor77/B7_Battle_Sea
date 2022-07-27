@@ -60,11 +60,23 @@ class Game:
         print("Доска компьютера:")
         print(self.ai.board)
 
+    def print_board_h(self):
+        col_len = 35
+
+        us_string = self.us.board.__str__().split('\n')
+        ai_string = self.ai.board.__str__().split('\n')
+        
+       
+        print('='.join([str('-'*20).center(col_len), str('-'*20).center(col_len)]))
+        print('='.join(["Доска пользователя:".center(col_len), "Доска компьютера:".center(col_len)]))
+        print('='.join([str('-'*20).center(col_len), str('-'*20).center(col_len)]))
+        for a, b in zip(us_string, ai_string):
+            print('='.join([a.center(col_len), b.center(col_len)]))
 
     def loop(self):
         num = 0
         while True:
-            self.print_board_v()
+            self.print_board_h()
             if num % 2 == 0:
                 print("-"*20)
                 print("Ходит пользователь!")
@@ -79,13 +91,14 @@ class Game:
             if self.ai.board.count == 7:
                 print("-"*20)
                 print("Пользователь выиграл!")
-                self.print_board_v()
+                self.print_board_h()
                 break
             
             if self.us.board.count == 7:
                 print("-"*20)
                 print("Компьютер выиграл!")
-                self.print_board_v()
+                self.ai.board.hid = False
+                self.print_board_h()
                 break
             num += 1
             

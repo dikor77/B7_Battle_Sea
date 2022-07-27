@@ -17,7 +17,8 @@ class Board:
 
     def __str__(self):
         res = ""
-        res += "  | 1 | 2 | 3 | 4 | 5 | 6 |"
+        res += "  | 1 | 2 | 3 | 4 | 5 | 6 |\n"
+        res += "  -------------------------"
         for i, row in enumerate(self.field):
             res += f"\n{i+1} | " + " | ".join(row) + " |"
         
