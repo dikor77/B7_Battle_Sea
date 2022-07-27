@@ -1,4 +1,6 @@
 from exception import *
+from dot import Dot
+from ship import Ship
 
 class Board:
     def __init__(self, hid = False, size = 6):
@@ -11,6 +13,7 @@ class Board:
         
         self.busy = []
         self.ships = []
+
 
     def __str__(self):
         res = ""
@@ -54,8 +57,7 @@ class Board:
         self.ships.append(ship)
         self.contour(ship)
 
-    
-    
+
     def shot(self, d):
         if self.out(d):
             raise BoardOutException()
@@ -71,7 +73,7 @@ class Board:
                 self.field[d.x][d.y] = "X"
                 if ship.lives == 0:
                     self.count += 1
-                    self.contour(ship, verb = True)
+                    self.contour(ship)
                     print("Корабль уничтожен!")
                     return False
                 else:
@@ -82,5 +84,6 @@ class Board:
         print("Мимо!")
         return False
     
+
     def begin(self):
         self.busy = []

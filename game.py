@@ -1,5 +1,15 @@
+from random import randint
+
+
+from player import AI, User
+from board import Board
+from ship import Ship
+from dot import Dot
+from exception import *
+
 class Game:
     def __init__(self, size = 6):
+        self.lens = [3, 2, 2, 1, 1, 1, 1]
         self.size = size
         pl = self.random_board()
         co = self.random_board()
@@ -7,6 +17,7 @@ class Game:
         
         self.ai = AI(co, pl)
         self.us = User(pl, co)
+        
     
     def random_board(self):
         board = None
@@ -15,10 +26,9 @@ class Game:
         return board
     
     def random_place(self):
-        lens = [3, 2, 2, 1, 1, 1, 1]
         board = Board(size = self.size)
         attempts = 0
-        for l in lens:
+        for l in self.lens:
             while True:
                 attempts += 1
                 if attempts > 2000:
@@ -42,16 +52,19 @@ class Game:
         print(" x - номер строки  ")
         print(" y - номер столбца ")
     
-    
+    def print_board_v(self):
+        print("-"*20)
+        print("Доска пользователя:")
+        print(self.us.board)
+        print("-"*20)
+        print("Доска компьютера:")
+        print(self.ai.board)
+
+
     def loop(self):
         num = 0
         while True:
-            print("-"*20)
-            print("Доска пользователя:")
-            print(self.us.board)
-            print("-"*20)
-            print("Доска компьютера:")
-            print(self.ai.board)
+            self.print_board_v()
             if num % 2 == 0:
                 print("-"*20)
                 print("Ходит пользователь!")
@@ -66,11 +79,13 @@ class Game:
             if self.ai.board.count == 7:
                 print("-"*20)
                 print("Пользователь выиграл!")
+                self.print_board_v()
                 break
             
             if self.us.board.count == 7:
                 print("-"*20)
                 print("Компьютер выиграл!")
+                self.print_board_v()
                 break
             num += 1
             

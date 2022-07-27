@@ -1,24 +1,23 @@
 from random import randint
+from board import Board
+
 from dot import Dot
 from ship import Ship
 
+a=Dot(2,2)
+b =Dot(3, 1)
 
-d1 = Dot(2,5)
-d2 = Dot(1,2)
-d3 = Dot(2,5)
+s1 = Ship(a, 4, 0)
+s2 = Ship(a, 4, 1)
 
-aa = [d1, d2, d3]
+board = Board(hid=False, size=6)
+board.add_ship(s1)
+#board.add_ship(s2)
 
-print(d1)
-print(aa)
-print(d1 == d3)
-
-print(d1 in aa)
-
-
-
-
-
+print(board)
+#print(board.busy)
+print(board.shot(Dot(1,1)))
+print(board)
 
 
 

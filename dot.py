@@ -11,3 +11,6 @@ class Dot:
     def __repr__(self) -> str:
         return f"Dot({self.x}, {self.y})"
 
+    def __hash__(self) -> int:
+        return hash((self.x, self.y))
+

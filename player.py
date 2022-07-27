@@ -1,3 +1,5 @@
+from time import sleep
+from exception import *
 from random import randint
 from dot import Dot
 
@@ -21,9 +23,12 @@ class Player:
 
 class AI(Player):
     def ask(self):
-        d = Dot(randint(0,5), randint(0, 5))
+        N = self.enemy.size
+        d = Dot(randint(0, N-1), randint(0, N-1))
         print(f"Ход компьютера: {d.x+1} {d.y+1}")
+        sleep(2)
         return d
+
 
 class User(Player):
     def ask(self):
