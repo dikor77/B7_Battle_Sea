@@ -1,13 +1,28 @@
-class Dot:
-    def __init__(self, x, y) -> None:
-        self.x = x
-        self.y = y
-    
-
-    def __eq__(self, other) -> bool:
-        return self.x == other.x and self.y == other.y
+from random import randint
+from dot import Dot
+from ship import Ship
 
 
-    def __repr__(self) -> str:
-        return f"Dot({self.x}, {self.y})"
+d1 = Dot(2,5)
+d2 = Dot(1,2)
+d3 = Dot(2,5)
+
+aa = [d1, d2, d3]
+
+print(d1)
+print(aa)
+print(d1 == d3)
+
+print(d1 in aa)
+
+
+
+
+
+
+
+
+
+
+
 
