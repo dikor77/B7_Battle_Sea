@@ -1,6 +1,7 @@
 from time import sleep
+from turtle import dot
 from exception import *
-from random import randint
+from random import randint, choice
 from dot import Dot
 
 class Player:
@@ -23,8 +24,22 @@ class Player:
 
 class AI(Player):
     def ask(self):
+        # N = self.enemy.size
+        # d = Dot(randint(0, N-1), randint(0, N-1))
+        # print(f"Ход компьютера: {d.x+1} {d.y+1}")
+        # sleep(2)
+        # return d
+
         N = self.enemy.size
-        d = Dot(randint(0, N-1), randint(0, N-1))
+        busy = self.enemy.busy
+        dots = []
+        for x in range(N):
+            for y in range(N):
+                dots.append(Dot(x,y))
+        for dot in busy:
+            if dot in dots:
+                dots.remove(dot)
+        d = choice(dots)
         print(f"Ход компьютера: {d.x+1} {d.y+1}")
         sleep(2)
         return d

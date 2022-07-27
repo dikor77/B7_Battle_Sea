@@ -1,23 +1,26 @@
-from random import randint
+from random import randint, choice
 from board import Board
 
 from dot import Dot
 from ship import Ship
 
-a=Dot(2,2)
-b =Dot(3, 1)
+dots = []
+for x in range(3):
+    for y in range(3):
+        dots.append(Dot(x,y))
 
-s1 = Ship(a, 4, 0)
-s2 = Ship(a, 4, 1)
+print(dots)
+print(choice(dots))
 
-board = Board(hid=False, size=6)
-board.add_ship(s1)
-#board.add_ship(s2)
+dots.remove(Dot(0, 0))
 
-print(board)
-#print(board.busy)
-print(board.shot(Dot(1,1)))
-print(board)
+try:
+    dots.remove(Dot(0, 0))
+except ValueError:
+    pass
+
+print(dots)
+
 
 
 
